@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-class DiscordBot(commands.Bot):
+class AlphaBot(commands.Bot):
     def __init__(self) -> None:
         self._intents = discord.Intents.default()
         super().__init__(command_prefix="!", intents=self._intents)

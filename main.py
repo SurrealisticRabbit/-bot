@@ -1,4 +1,4 @@
-from util.discordbot import DiscordBot
+from util.alphabot import AlphaBot
 from dotenv import load_dotenv
 import os
 
@@ -9,11 +9,13 @@ def _check() -> bool:
     wd = os.path.realpath('.\\')
     dotenv = os.path.join(wd, '.env')
     if os.path.exists(dotenv):
+        global _token
+        _token = os.getenv("DISCORD_TOKEN")
         return True
     return False
 
 def main():    
-    bot = DiscordBot()
+    bot = AlphaBot()
     bot.run(_token)
     
 if __name__ == "__main__":
