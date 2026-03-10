@@ -1,3 +1,4 @@
+from discord.errors import LoginFailure
 from util.alphabot import AlphaBot
 from dotenv import load_dotenv
 import os
@@ -21,10 +22,9 @@ def main():
     
 if __name__ == "__main__":
     if _check():
-        main()
+        try:
+            main()
+        except LoginFailure as e:
+            print(e)
     else:
         raise FileNotFoundError('.env file not found')
-    
-    
-
-        
