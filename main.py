@@ -25,6 +25,7 @@ if __name__ == "__main__":
         try:
             main()
         except LoginFailure as e:
+            print("Please check that you have a valid discord token in the .env file")
             print(e)
     else:
         raise FileNotFoundError('.env file not found')
