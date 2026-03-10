@@ -14,7 +14,8 @@ def _check() -> bool:
         return True
     return False
 
-def main():    
+def main():
+    global _token
     bot = AlphaBot()
     bot.run(_token)
     
