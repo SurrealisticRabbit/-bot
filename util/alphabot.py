@@ -1,8 +1,7 @@
 import discord
 from discord.ext import commands
 from commands.base import BaseCommands
-from commands.music import SpotifyCommands
-
+from commands.music import MusicCommands
 
 class AlphaBot(commands.Bot):
     def __init__(self) -> None:
@@ -20,8 +19,8 @@ class AlphaBot(commands.Bot):
     async def setup_hook(self) -> None:
         print("Setting up commands...")
         await self.add_cog(BaseCommands(self))
-        print("Setting up Spotify commands...")
-        await self.add_cog(SpotifyCommands(self))
+        print("Setting up Music commands...")
+        await self.add_cog(MusicCommands(self))
         print("Syncing commands...")
         await self.tree.sync()
         print("Commands synced!")
