@@ -53,7 +53,26 @@ class MusicCommands(commands.Cog):
             return False
         self._voice_client = await self._vc.channel.connect()
         return True
-        
+    
+    @app_commands.command(name="queue", description="Shows the current queue of songs")
+    async def queue(self, interations: discord.Interaction):
+        await interations.response.defer(thinking=True)
+        if not self._voice_client:
+            await interations.edit_original_response(content="I am not connected to a voice channel")
+            return
+        if not self._player:
+            await interations.edit_original_response(content="There are no songs in the queue")
+            return
+        r = discord.Embed(
+            title="Queue",
+            color=discord.Color.green(),
+            timestamp=interations.created_at
+        )
+        r.set_thumbnail(url=self.bot.user.display_avatar.url)
+        for song in self._player.queue:
+            r.add_field(name=song.title, value=f"Album: {song.album}\nArtist: {song.artist}\nDuration: {song.duration}s\nBitrate: {song.bitrate}kbps\nCodec: {song.codec}", inline=False)
+        await interations.edit_original_response(embed=r)
+         
     @app_commands.command(name="play", description="Play a local music file")
     async def play(self, interaction: discord.Interaction):
         await interaction.response.defer(thinking=True)
@@ -65,7 +84,8 @@ class MusicCommands(commands.Cog):
         song = self._player.queue[0]
         self._voice_client.play(discord.FFmpegPCMAudio(song.path), after=lambda e: self._player.queue.pop(0))
         await interaction.edit_original_response(content=f"🎵 Now playing: **{song.title}**")
-        
+    
+    @app_commands.command(name="stop", description="Stop the music player")
     async def stop(self, interaction: discord.Interaction):
         await interaction.response.defer(thinking=True)
         if not self._voice_client:
