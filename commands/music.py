@@ -4,6 +4,7 @@ from discord import app_commands
 from util.music import LocalSong
 import os
 from mutagen import File as MutagenFile
+from util.embed import message_embed
 
 class LocalMusicPlayer():
     def __init__(self) -> None:
@@ -49,7 +50,7 @@ class MusicCommands(commands.Cog):
     async def _connect_to_vc(self, interaction: discord.Interaction):
         self._vc = interaction.user.voice
         if not self._vc:
-            await interaction.edit_original_response(content="You are not in a voice channel")
+            await interaction.edit_original_response(embed=message_embed(interaction, "Error", "You are not connected to a voice channel", discord.Color.red()))
             return False
         self._voice_client = await self._vc.channel.connect()
         return True
@@ -58,10 +59,10 @@ class MusicCommands(commands.Cog):
     async def queue(self, interations: discord.Interaction):
         await interations.response.defer(thinking=True)
         if not self._voice_client:
-            await interations.edit_original_response(content="I am not connected to a voice channel")
+            await interations.edit_original_response(embed=message_embed(interations, "Error", "I am not connected to a voice channel", discord.Color.red()))
             return
         if not self._player:
-            await interations.edit_original_response(content="There are no songs in the queue")
+            await interations.edit_original_response(embed=message_embed(interations, "Error", "There are no songs in the queue", discord.Color.red()))
             return
         r = discord.Embed(
             title="Queue",
@@ -70,7 +71,7 @@ class MusicCommands(commands.Cog):
         )
         r.set_thumbnail(url=self.bot.user.display_avatar.url)
         for song in self._player.queue:
-            r.add_field(name=song.title, value=f"Album: {song.album}\nArtist: {song.artist}\nDuration: {song.duration}s\nBitrate: {song.bitrate}kbps\nCodec: {song.codec}", inline=False)
+            r.add_field(name=song.title, value=f"Album: {song.album}\nArtist: {song.artist}\nDuration: {song.duration}s\nBitrate: {song.bitrate}kbps\nCodec: {song.codec}", inline=True)
         await interations.edit_original_response(embed=r)
          
     @app_commands.command(name="play", description="Play a local music file")
@@ -83,13 +84,13 @@ class MusicCommands(commands.Cog):
         self._player._scan_music_dir()
         song = self._player.queue[0]
         self._voice_client.play(discord.FFmpegPCMAudio(song.path), after=lambda e: self._player.queue.pop(0))
-        await interaction.edit_original_response(content=f"🎵 Now playing: **{song.title}**")
+        await interaction.edit_original_response(embed=message_embed(interaction, "Success", f"Now playing: {song.title}", discord.Color.green()))
     
     @app_commands.command(name="stop", description="Stop the music player")
     async def stop(self, interaction: discord.Interaction):
         await interaction.response.defer(thinking=True)
         if not self._voice_client:
-            await interaction.response.send_message("I am not connected to a voice channel", ephemeral=True)
+            await interaction.edit_original_response(embed=message_embed(interaction, "Error", "I am not connected to a voice channel", discord.Color.red()))
             return
         self._voice_client.stop()
         await self._voice_client.disconnect()
